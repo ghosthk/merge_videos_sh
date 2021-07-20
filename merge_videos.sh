@@ -8,13 +8,15 @@ fi
 
 directory=$1;
 videoListName="videolist.txt"
-outputFileName="output.mp4"
+outputFileName="all.mp4"
 
 rm $directory/$videoListName;
 
-mp3FileList=($(ls $directory/*.mp3));
+outputDir=$directory/output
 
-videocount=${#mp3FileList[@]}
+mp4FileList=($(ls $outputDir/*.mp4));
+
+videocount=${#mp4FileList[@]}
 
 echo "Searched ${videocount} video files";
 
@@ -24,10 +26,10 @@ if [[ $videocount == 0 ]]; then
 fi
 
 for ((i=0; i<$videocount; i++)); do 
-	printf "file '${directory}/${i}.mp4'\n" >> $directory/$videoListName; 
+	printf "file '${outputDir}/simple_${i}.mp4'\n" >> $directory/$videoListName; 
 done;
 
 echo 'start merge videos...'
-ffmpeg -f concat -safe 0 -i $directory/$videoListName -c copy -y $directory/$outputFileName
+ffmpeg -f concat -safe 0 -i $directory/$videoListName -c copy -y $outputDir/$outputFileName
 
 echo 'merge videos finished....'
