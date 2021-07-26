@@ -10,11 +10,14 @@ directory=$1;
 videoListName="videolist.txt"
 outputFileName="all.mp4"
 
-rm $directory/$videoListName;
+tempDir=$directory/temp
+mkdir $tempDir
 
-outputDir=$directory/output
+videoListPath=$tempDir/$videoListName
 
-mp4FileList=($(ls $outputDir/*.mp4));
+rm $videoListPath;
+
+mp4FileList=($(ls $tempDir/resize_*.mp4));
 
 videocount=${#mp4FileList[@]}
 
@@ -26,10 +29,10 @@ if [[ $videocount == 0 ]]; then
 fi
 
 for ((i=0; i<$videocount; i++)); do 
-	printf "file '${outputDir}/simple_${i}.mp4'\n" >> $directory/$videoListName; 
+	printf "file '${tempDir}/resize_${i}.mp4'\n" >> $videoListPath; 
 done;
 
 echo 'start merge videos...'
-ffmpeg -f concat -safe 0 -i $directory/$videoListName -c copy -y $outputDir/$outputFileName
+ffmpeg -f concat -safe 0 -i $videoListPath -c copy -y $tempDir/$outputFileName
 
 echo 'merge videos finished....'
