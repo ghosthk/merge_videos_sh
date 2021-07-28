@@ -15,13 +15,13 @@ mp3List=$(ls $1/*.{[mM][pP][3],[mM][4][aA],[fF][lL][aA][cC]})
 for i in $mp3List; do
 	fileName=$(basename -- "$i")
 	extension=${fileName##*.}
-	fileName=${fileName%.*}.mp3
+	fileName=${fileName%.*}.m4a
 	newName=resize_$fileName;
-	echo "start resize mp3 $fileName to $newName"
-	if [[ $extension == 'mp3' ]]; then
+	echo "start resize m4a $fileName to $newName"
+	if [[ $extension == 'm4a' ]]; then
 		cp $i $tempDir/$newName
 	else 
-		ffmpeg -i $i -y $tempDir/$newName
+		ffmpeg -i $i -c:a aac -vn -y $tempDir/$newName
 	fi
 done
-echo 'resize mp4 files finished!!!!'
+echo 'resize m4a files finished!!!!'

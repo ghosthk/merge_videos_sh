@@ -2,6 +2,10 @@
 
 function generatevideo() {
 	path=$1
+	lastDirName=${path##*/}
+	logFilePath="${path}/${lastDirName}_log.txt"
+	printf "${lastDirName} start $(date)\n" >> $logFilePath; 
+
 	echo "****** start ${path} ******"
 	(./format_to_mp3.sh $path)
 	lastShellStatus=$?
@@ -32,6 +36,7 @@ function generatevideo() {
 		return;	
 	fi
 	echo "****** finished ${path} ******"
+	printf "${lastDirName} end $(date)\n" >> $logFilePath; 
 }
 
 (./arg_check.sh $@)

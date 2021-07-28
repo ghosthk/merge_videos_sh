@@ -15,9 +15,10 @@ mkdir $outputDir
 
 tempDir=$directory/temp
 mp4Path=$tempDir/all.mp4
-audioPath=$tempDir/all.mp3
+audioPath=$tempDir/all.m4a
 echo $mp4Path
 echo $audioPath
 outputMp4Path=$outputDir/$outputFileName
 
-ffmpeg -stream_loop -1 -i $mp4Path -i $audioPath -map 0:v:0 -map 1:a:0 -c:a aac -crf 23 -maxrate 2M -bufsize 2M -pix_fmt yuvj420p -brand mp42 -preset fast -shortest -y $outputMp4Path
+# -crf 23 -maxrate 2M -bufsize 2M -pix_fmt yuvj420p -brand mp42
+ffmpeg -stream_loop -1 -i $mp4Path -i $audioPath -map 0:v:0 -map 1:a:0 -acodec copy -vcodec copy -preset fast -shortest -y $outputMp4Path

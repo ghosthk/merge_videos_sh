@@ -7,35 +7,35 @@ if [[ $lastShellStatus -ne 0 ]]; then
 fi
 
 directory=$1;
-mp3ListName="mp3list.txt"
-outputFileName="all.mp3"
+audioListName="audiolist.txt"
+outputFileName="all.m4a"
 
 tempDir=$directory/temp
 mkdir $tempDir
 
-mp3ListPath=$tempDir/$mp3ListName
+audioListPath=$tempDir/$audioListName
 
-rm $mp3ListPath;
+rm $audioListPath;
 
-mp3FileList=($(ls $tempDir/resize_*.mp3));
+audioFileList=($(ls $tempDir/resize_*.m4a));
 
-mp3count=${#mp3FileList[@]}
+audiocount=${#audioFileList[@]}
 
-echo "Searched ${mp3count} mp3 files";
+echo "Searched ${audiocount} m4a files";
 
-if [[ $mp3count == 0 ]]; then
-	echo "Please check sub mp3 files is exist...";
+if [[ $audiocount == 0 ]]; then
+	echo "Please check sub audio files is exist...";
 	exit -1;
 fi
 
-echo $mp3FileList
-echo $mp3count
+echo $audioFileList
+echo $audiocount
 
-for ((i=0; i<$mp3count; i++)); do 
-	printf "file '${tempDir}/resize_${i}.mp3'\n" >> $mp3ListPath; 
+for ((i=0; i<$audiocount; i++)); do 
+	printf "file '${tempDir}/resize_${i}.m4a'\n" >> $audioListPath; 
 done;
 
-echo 'start merge mp3 files...'
-ffmpeg -f concat -safe 0 -i $mp3ListPath -c copy -y $tempDir/$outputFileName
+echo 'start merge audio files...'
+ffmpeg -f concat -safe 0 -i $audioListPath -c copy -y $tempDir/$outputFileName
 
-echo 'merge mp3 files finished....'
+echo 'merge audio files finished....'

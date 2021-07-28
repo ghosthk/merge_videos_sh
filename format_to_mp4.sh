@@ -18,6 +18,6 @@ for i in $mp4List; do
 	fileName=${fileName%.*}.mp4
 	newName=resize_$fileName;
 	echo "start resize mp4 $fileName to $newName"
-	ffmpeg -i $i -s 1280x720 -vcodec h264 -acodec mp2 -preset fast -y $tempDir/$newName
+	ffmpeg -i $i -s 1280x720 -vcodec h264 -acodec mp2 -crf 23 -maxrate 2M -bufsize 2M -pix_fmt yuvj420p -brand mp42 -preset fast -y $tempDir/$newName
 done
 echo 'resize mp4 files finished!!!!'
