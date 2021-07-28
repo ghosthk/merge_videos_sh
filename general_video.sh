@@ -29,5 +29,5 @@ if [[ $lastShellStatus -ne 0 ]]; then
 fi
 
 for arg in $@; do
-	generatevideo $arg;
+	generatevideo $arg &
 done
