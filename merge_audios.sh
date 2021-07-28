@@ -17,7 +17,7 @@ mp3ListPath=$tempDir/$mp3ListName
 
 rm $mp3ListPath;
 
-mp3FileList=($(ls $directory/*.mp3));
+mp3FileList=($(ls $tempDir/resize_*.mp3));
 
 mp3count=${#mp3FileList[@]}
 
@@ -28,8 +28,11 @@ if [[ $mp3count == 0 ]]; then
 	exit -1;
 fi
 
+echo $mp3FileList
+echo $mp3count
+
 for ((i=0; i<$mp3count; i++)); do 
-	printf "file '${directory}/${i}.mp3'\n" >> $mp3ListPath; 
+	printf "file '${tempDir}/resize_${i}.mp3'\n" >> $mp3ListPath; 
 done;
 
 echo 'start merge mp3 files...'

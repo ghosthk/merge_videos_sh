@@ -3,7 +3,13 @@
 function generatevideo() {
 	path=$1
 	echo "****** start ${path} ******"
-	(./resize_mp4.sh $path)
+	(./format_to_mp3.sh $path)
+	lastShellStatus=$?
+	if [[ $lastShellStatus -ne 0 ]]; then
+		return;
+	fi
+
+	(./format_to_mp4.sh $path)
 	lastShellStatus=$?
 	if [[ $lastShellStatus -ne 0 ]]; then
 		return;
@@ -14,7 +20,7 @@ function generatevideo() {
 	if [[ $lastShellStatus -ne 0 ]]; then
 		return;
 	fi
-	(./merge_mp3s.sh $path)
+	(./merge_audios.sh $path)
 	lastShellStatus=$?
 	if [[ $lastShellStatus -ne 0 ]]; then
 		return;	
