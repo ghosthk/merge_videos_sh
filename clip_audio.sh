@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./errorlog.sh
+source ./tool.sh
 
 argsCount=($# -ge 1)
 
@@ -20,12 +20,8 @@ allDurationTime=$(ffmpeg -i $filePath 2>&1 | grep "Duration"| cut -d ' ' -f 4 | 
 log "裁剪的音频文件名: ${fileName} 音频时长:${allDurationTime} 音频路径: ${filePath}"
 
 #
-downloadDir=$HOME/Downloads
-outputDir=$downloadDir/clipAudios
+outputDir=$clipAudioDir
 log "导出音频文件路径: "$outputDir
-if [[ ! -d $outputDir ]]; then
-	mkdir $outputDir/
-fi
 
 # 删除当前作品历史导出数据
 oldClipAudios=($(ls $outputDir/$fileName*.*))
@@ -39,7 +35,7 @@ times=( "$@" )
 unset times[0]
 timesCount=${#times[@]}
 
-log "要裁剪的时间: " ${times[@]}
+log "要裁剪的时间: ${times[*]}" 
 
 lastClipSec=0
 for ((i=0; i<=$timesCount; i++)); do
@@ -55,11 +51,13 @@ for ((i=0; i<=$timesCount; i++)); do
 
 	if [[ $i -eq $timesCount ]]; then
 		log "开始裁剪时间:${lastClipSec} 至结束"
-		ffmpeg -i $filePath -vn -acodec aac -ss $lastClipSec -y $tFilePath -hide_banner -loglevel error
+		ffmpeg -i $filePath -vn -acodec aac -ss $lastClipSec -y $tFilePath -hide_banner -loglevel $ffmpegLeve
 	else
 		durationSec=`expr $currentSec - $lastClipSec`
 		log "开始裁剪时间:${lastClipSec} 持续时间:${durationSec}"
-		ffmpeg -i $filePath -vn -acodec aac -ss $lastClipSec -t $durationSec -y $tFilePath -hide_banner -loglevel error
+		ffmpeg -i $filePath -vn -acodec aac -ss $lastClipSec -t $durationSec -y $tFilePath -hide_banner -loglevel $ffmpegLeve
 		lastClipSec=$currentSec
 	fi
 done
+
+log "裁剪音频完成: "$outputDir

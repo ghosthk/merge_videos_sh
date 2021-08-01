@@ -1,75 +1,60 @@
 #!/bin/bash
 
-if [[ $argsCount < 2 ]]; then
-	echo "Please input argumetns, example: crop_audio.sh audio_path start_time duration_time"
-    exit -1
-fi
+source ./tool.sh
+
+(./arg_check.sh $@)
 
 dir=$1
 mp4List=$(ls $dir/*.{[mM][pP][4],[mM][o0][vV]})
 
-everyClipDuration=60
+videocount=(${#mp4List[@]})
 
-videocount=${#mp4FileList[@]}
+log "准备分离 ${dir} 目录下的所有视频"
+log "找到 ${videocount} 个视频";
 
-echo "Searched ${videocount} video files";
+videosdir=$separateVideoDir
+audiosDir=$separateAudioDir
 
-videosdir=$dir/videos
-audiosDir=$dir/audios
-separateVideoDir=$videosdir/separateVideos
-mkdir $videosdir
-mkdir $audiosDir
-mkdir $separateVideoDir
-
+index=0
 for i in $mp4List; do
+	index=`expr $index + 1`
 	# 文件名
-	fileName=$(basename "$i" .mp4)
+	fileName=$(basename "$i")
+	extension=${fileName##*.}
+	fileName="${fileName%.*}"
 
-	echo $fileName
+	log "开始分离第 ${index}/${videocount} 个视频, 文件名: ${fileName}"
 	audioPath=$audiosDir/$fileName.m4a
 	videoPath=$videosdir/$fileName.mp4
+	
 	# 导出 audio 以及MP4
 	if [[ ! -e $audioPath ]]; then
-		ffmpeg -i $i -acodec copy -vn -y $audioPath
+		log "开始分离音频: 分离之后音频路径: ${audioPath}"
+		tAudioPath=$audiosDir/$fileName.temp.m4a
+		ffmpeg -i $i -acodec copy -vn -y $tAudioPath  -hide_banner -loglevel $ffmpegLeve
+		mv $tAudioPath $audioPath
+	else
+		log "开始分离音频: 音频已存在: ${videoPath}"
 	fi
 	
 	if [[ ! -e $videoPath ]]; then
-		ffmpeg -i $i -vcodec copy -an -y $videoPath
+		log "开始分离视频: 分离之后视频路径: ${videoPath}"
+		tVideoPath=$videosdir/$fileName.temp.mp4
+		ffmpeg -i $i -vcodec copy -an -preset fast -y $tVideoPath -hide_banner -loglevel $ffmpegLeve
+		mv $tVideoPath $videoPath
+	else
+		log "开始分离视频: 视频已存在: ${videoPath}"
 	fi
 
-	# continue;
-	#获取MP4时间
-	# durationTime=$(ffmpeg -i $videoPath 2>&1 | grep Duration | awk '{print $2}' | tr -d ,)
-	durationTime=$(ffmpeg -i $videoPath 2>&1 | grep "Duration"| cut -d ' ' -f 4 | sed s/,// | sed 's@\..*@@g' | awk '{ split($1, A, ":"); split(A[3], B, "."); print 3600*A[1] + 60*A[2] + B[1] }')
-
-	separateCount=`expr $durationTime / 60`
-
-	echo $durationTime
-	clipCount=0
-	clipDuration=0
-
-	filelog="${separateVideoDir}/${fileName}_log.log"
-	if [[ -e $separateVideoPath ]]; then
-		rm $filelog
+	if [[ -e $videoPath ]]; then
+		log "视频存在，则开始裁剪视频"
+		(./clip_video.sh $videoPath)
+	else
+		warning "视频不存在，可能分离产生了问题"
 	fi
-	while [[ $clipDuration -lt $durationTime ]]; do
-		clipCount=`expr $clipCount + 1`
-		separateVideoPath="${separateVideoDir}/${fileName}_${clipCount}.mp4"
-		tStartTime=$clipDuration
-		tDurationTime=$everyClipDuration
-		clipDuration=`expr $clipDuration + $everyClipDuration`
-		echo $clipCount - $tStartTime - $tDurationTime - $clipDuration
-		if [[ $clipDuration -lt $durationTime ]]; then
-			echo $clipDuration - $durationTime
-		fi
-		if [[ ! -e $separateVideoPath ]]; then
-			if [[ $clipDuration -gt $durationTime ]]; then
-				tDurationTime=`expr $durationTime - $tStartTime`
-			fi
-			ffmpeg -i $videoPath -vcodec copy -acodec copy -ss $tStartTime -t $tDurationTime -avoid_negative_ts make_zero -y $separateVideoPath
-		fi
-
-		printf "第${clipCount}个视频:开始时间:${tStartTime};持续时间:${tDurationTime}\n" >> $filelog; 
-	done
-	# break;
 done
+
+log "分离完了所有视频。"
+log "分离的音频目录: ${separateAudioDir}"
+log "分离的视频目录: ${separateVideoDir}"
+log "裁剪视频的目录: ${clipVideoDir}"

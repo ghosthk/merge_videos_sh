@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./errorlog.sh
+source ./tool.sh
 
 argsCount=($# -ge 1)
 
