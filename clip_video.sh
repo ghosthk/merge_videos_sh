@@ -1,11 +1,9 @@
 #!/bin/bash
 
-source ./tool.sh
+rootDir=$(dirname "$0")
+source $rootDir/tools/tool.sh
 
-(./arg_check.sh $@)
-
-# 每次裁剪的时长 60s
-everyClipDuration=60
+($rootDir/tools/arg_check.sh $@)
 
 filePath=$1
 # 获取路径
@@ -33,9 +31,8 @@ separateCount=`expr $allDurationTime / $everyClipDuration + 1`
 
 log "${everyClipDuration}秒裁剪一次，预计要裁剪${separateCount}个视频。"
 
-clipCount=0
-clipDuration=0
-
+clipCount=0 
+clipDuration=0 
 while [[ $clipDuration -lt $allDurationTime ]]; do
 	clipCount=`expr $clipCount + 1`
 
@@ -47,8 +44,8 @@ while [[ $clipDuration -lt $allDurationTime ]]; do
 	if [[ $clipDuration -gt $allDurationTime ]]; then
 		tDurationTime=`expr $allDurationTime - $tStartTime`
 	fi
-	log "第${clipCount}/${separateCount}个视频:开始时间:${tStartTime};持续时间:${tDurationTime}"
+	log "裁剪到第${clipCount}/${separateCount}个视频:开始时间:${tStartTime};持续时间:${tDurationTime}"
 	if [[ ! -e $separateVideoPath ]]; then
-		ffmpeg -i $filePath -vcodec copy -acodec copy -ss $tStartTime -t $tDurationTime -avoid_negative_ts make_zero -y $separateVideoPath -hide_banner -loglevel $ffmpegLeve
+		ffmpeg -i $filePath -r 30000/1001 -video_track_timescale 30k -vcodec copy -acodec copy -ss $tStartTime -t $tDurationTime -avoid_negative_ts make_zero -y $separateVideoPath -hide_banner -loglevel $ffmpegLeve
 	fi
 done

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./tool.sh
+source $(dirname "$0")/tools/tool.sh
 
 argsCount=($# -ge 1)
 
@@ -37,13 +37,13 @@ timesCount=${#times[@]}
 
 log "要裁剪的时间: ${times[*]}" 
 
-lastClipSec=0
+lastClipSec=0 
 for ((i=0; i<=$timesCount; i++)); do
 	currentCount=`expr $i + 1`
 	currentSec=${times[$currentCount]}
 	tFilePath="${outputDir}/${fileName}_${currentCount}_${times[$currentCount]}.m4a"
 
-	log "第${currentCount}/${timesCount}次裁剪，导出路径:${tFilePath}"
+	log "第${currentCount}/`expr 1 + ${timesCount}`次裁剪，导出路径:${tFilePath}"
 
 	if [[ $currentSec -ge $allDurationTime ]]; then
 		error "时间 ${currentSec} 配置有问题，总时长只有${allDurationTime}"

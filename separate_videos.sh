@@ -1,22 +1,24 @@
 #!/bin/bash
 
-source ./tool.sh
+rootDir=$(dirname "$0")
+source $rootDir/tools/tool.sh
 
-(./arg_check.sh $@)
+($rootDir/tools/arg_check.sh $@)
 
 dir=$1
-mp4List=$(ls $dir/*.{[mM][pP][4],[mM][o0][vV]})
+videoList=($(ls $dir/*.{[mM][pP][4],[mM][o0][vV]}))
 
-videocount=(${#mp4List[@]})
+videocount=${#videoList[@]}
 
 log "准备分离 ${dir} 目录下的所有视频"
 log "找到 ${videocount} 个视频";
 
+# exit 1
 videosdir=$separateVideoDir
 audiosDir=$separateAudioDir
 
-index=0
-for i in $mp4List; do
+index=0 
+for i in ${videoList[@]}; do
 	index=`expr $index + 1`
 	# 文件名
 	fileName=$(basename "$i")
@@ -48,7 +50,7 @@ for i in $mp4List; do
 
 	if [[ -e $videoPath ]]; then
 		log "视频存在，则开始裁剪视频"
-		(./clip_video.sh $videoPath)
+		($rootDir/clip_video.sh $videoPath)
 	else
 		warning "视频不存在，可能分离产生了问题"
 	fi
@@ -58,3 +60,5 @@ log "分离完了所有视频。"
 log "分离的音频目录: ${separateAudioDir}"
 log "分离的视频目录: ${separateVideoDir}"
 log "裁剪视频的目录: ${clipVideoDir}"
+log "视频素材的目录: ${videosResouceDir}"
+log "如果裁剪视频的素材没问题，可以将新生成的素材移动到视频素材目录，供之后的视频使用^_^"

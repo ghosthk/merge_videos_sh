@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./tool.sh
+source $(dirname "$0")/tool.sh
 
 argsCount=($# -ge 1)
 

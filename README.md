@@ -1,5 +1,11 @@
 # 生成歌曲视频
+```
+./generate_video.sh 音乐文件夹1 音乐文件夹2[可选] 音乐文件夹3[可选]  音乐文件夹n[可选] ....
+```
 # 随机生成
+```
+./random_generate.sh 生成视频个数 音频路径 视频资源路径[可选,默认为~/Downloads/Resources/videos]
+```
 
 # 分离音频与视频&分割视频
 1. 找到文件夹里面所有的视频文件(mp4|mov)
@@ -31,6 +37,10 @@
 * 执行`./clip_video.sh `进行裁剪音频
 * 裁剪后的音频统一在 `~/Downloads/GH_clipVideoDir/` 文件夹中
 
+# 格式化视频
+```
+./tools/format_videos.sh 视频文件夹
+```
 # 简单命令操作
 * 快捷打开搜索框  `option option`  快速连续按两次`option`
 * 输入`iterm` 回车键打开 `iterm` 软件
