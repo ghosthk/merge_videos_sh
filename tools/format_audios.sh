@@ -20,7 +20,10 @@ if [[ ! -d $targetDir ]]; then
 fi
 log "准备格式化音频 路径:${audioDir} 生成路径:${targetDir}"
 
-audioList=($(ls $1/*.{[mM][pP][3],[mM][4][aA],[fF][lL][aA][cC]}))
+shopt -s nullglob
+audioList=( $1/*.{[mM][pP][3],[mM][4][aA],[fF][lL][aA][cC],[wW][aa][vV]} )
+shopt -u nullglob
+
 audioCount=${#audioList[@]}
 log "找到${audioCount}个音频"
 

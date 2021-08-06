@@ -99,9 +99,10 @@ function generate_video() {
 		videoPathTemp=${videosFilePath[randomVideoValue]}
 		
 		writeFilesToPath $videoPathTemp $mergeVideosFilePath
-		getFileDuration $videoPathTemp
-		videoDuration=$?
-		videosDuration=`expr $videoDuration + $videosDuration`
+		
+		videoDuration=$(getFileDuration $videoPathTemp)
+		videosDuration=$(( $videosDuration + $videoDuration ))
+
 		videoName=$(basename "$videoPathTemp")
 		randomVideoIndex=`expr $randomVideoIndex + 1`
 

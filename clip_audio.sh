@@ -24,7 +24,9 @@ outputDir=$clipAudioDir
 log "导出音频文件路径: "$outputDir
 
 # 删除当前作品历史导出数据
-oldClipAudios=($(ls $outputDir/$fileName*.*))
+shopt -s nullglob
+oldClipAudios=( $outputDir/$fileName*.* )
+shopt -u nullglob
 log "找到 ${#oldClipAudios[@]} 个历史裁剪记录将被删除: ${oldClipAudios[@]}"
 if [[ ${#oldClipAudios[@]} -gt 0 ]]; then
 	rm ${oldClipAudios[@]}

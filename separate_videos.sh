@@ -6,7 +6,9 @@ source $rootDir/tools/tool.sh
 ($rootDir/tools/arg_check.sh $@)
 
 dir=$1
-videoList=($(ls $dir/*.{[mM][pP][4],[mM][o0][vV]}))
+shopt -s nullglob
+videoList=( $dir/*.{[mM][pP][4],[mM][o0][vV]} )
+shopt -u nullglob
 
 videocount=${#videoList[@]}
 

@@ -20,7 +20,10 @@ if [[ ! -d $targetDir ]]; then
 fi
 log "准备格式化视频 路径:${videoDir} 生成路径:${targetDir}"
 
-videoList=($(ls $1/*.{[mM][pP][4],[mM][oO][vV]}))
+shopt -s nullglob
+videoList=( $1/*.{[mM][pP][4],[mM][oO][vV]} )
+shopt -u nullglob
+
 videoCount=${#videoList[@]}
 log "找到${videoCount}个视频"
 
