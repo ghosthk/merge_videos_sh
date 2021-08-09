@@ -21,6 +21,8 @@ function generate_video() {
 		error "视频文件夹不存在，请检查路径是否正确. ${videoPath}"
 	fi
 
+	python ./rename_files_name.py $path $videoPath
+
 	shopt -s nullglob
 	videosFilePath=( $videoPath/*.mp4 )
 	shopt -u nullglob
@@ -102,11 +104,13 @@ function generate_video() {
 		
 		videoDuration=$(getFileDuration $videoPathTemp)
 		videosDuration=$(( $videosDuration + $videoDuration ))
+		videoDurationStr="$(( $videoDuration / 60 )):$(( $videoDuration % 60 ))"
+		videosDurationStr="$(( $videosDuration / 3600 )):$(( $videosDuration % 3600 / 60 )):$(( $videosDuration % 60 ))"
 
 		videoName=$(basename "$videoPathTemp")
 		randomVideoIndex=`expr $randomVideoIndex + 1`
 
-		log "第 ${currentProgress} 视频: 选取了第${randomVideoIndex}个视频:${videoName} 时长:${videoDuration}s 总时长:${videosDuration}"
+		log "第 ${currentProgress} 视频: 选取了第${randomVideoIndex}个视频:${videoName} 时长:${videoDurationStr} 总时长:${videosDurationStr}"
 	done
 
 	log "第 ${currentProgress} 视频：开始合成视频, 可能会比较耗时，请耐心等待..."
@@ -140,8 +144,11 @@ function generate_video() {
 	log ""
 }
 
-log "一共要生成 ${argsCount} 个视频"
 makeOutputDir
+setupLog
+
+log "一共要生成 ${argsCount} 个视频"
+
 index=1
 for arg in $@; do
 	generate_video $index $argsCount $arg

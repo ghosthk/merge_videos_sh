@@ -5,6 +5,8 @@ source $rootDir/tools/tool.sh
 
 ($rootDir/tools/arg_check.sh $@)
 
+setupLog
+
 dir=$1
 shopt -s nullglob
 videoList=( $dir/*.{[mM][pP][4],[mM][o0][vV]} )

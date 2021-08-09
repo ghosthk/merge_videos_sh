@@ -24,7 +24,7 @@ everyClipDuration=60
 currentTime=$(date "+%Y%m%d%H%M%S")
 logPath="${logDir}/${currentTime}.log"
 ffmpegLogPath="${logDir}/${currentTime}_ff.log"
-ffmpegLeve=8
+ffmpegLeve=16
 FFREPORT=file=$ffmpegLogPath:level=$ffmpegLeve
 
 export videosResouceDir
@@ -32,11 +32,11 @@ export separateVideoDir
 export separateAudioDir
 export clipVideoDir 
 export clipAudioDir
-export FFREPORT
 export ffmpegLeve
 export todayOutputDir
 export randomGenerateDuration
 export everyClipDuration
+# export FFREPORT
 
 export videoWidth
 export videoHeight
@@ -62,8 +62,6 @@ fi
 if [[ ! -d $clipAudioDir ]]; then
 	mkdir $clipAudioDir
 fi
-
-exec >> $logPath
 
 # ********************** log *******************
 function warning() {
@@ -99,6 +97,10 @@ function makeOutputDir() {
 	if [[ ! -d $todayOutputTempDir ]]; then
 		mkdir $todayOutputTempDir
 	fi
+}
+
+function setupLog() {
+	exec >> $logPath
 }
 
 # ********************** FFMPEG *******************

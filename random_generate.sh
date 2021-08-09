@@ -17,6 +17,8 @@ function randomGenerate() {
 		videoPath=$3
 	fi
 
+	python ./rename_files_name.py $audioPath $videoPath
+
 	audioDirName=${audioPath##*/}
 	outputFilePrefix=$audioDirName-$(date "+%H%M%S")
 
@@ -33,7 +35,7 @@ function randomGenerate() {
 	fi
 
 	shopt -s nullglob
-	audiosFilePath=( $audioPath/*.m4a )
+	audiosFilePath=( $audioPath/*.{[mM][pP][3],[mM][4][aA],[fF][lL][aA][cC],[wW][aa][vV]} )
 	videosFilePath=( $videoPath/*.mp4 )
 	shopt -u nullglob
 	audiosFileCount=${#audiosFilePath[@]}
@@ -152,16 +154,35 @@ function randomGenerate() {
 			fi
 			usedAudioFileIndexs[$randomAudioIndex]=$randomAudioValue
 			audioPathTemp=${audiosFilePath[randomAudioValue]}
+
+			audioFileTempDir=${audioPathTemp%/*}
+			audioFileTempName=$(basename "$audioPathTemp")
+			audioFileTempExtension=${audioFileTempName##*.}
+			audioFileTempName="${audioFileTempName%.*}"
+			if [[ ! ($audioFileTempExtension = 'm4a' || $audioFileTempExtension = 'M4A') ]]; then
+			# 	# 什么都不需要处理
+			# else 
+				newAudioFilePathTemp=$audioFileTempDir/$audioFileTempName.m4a
+				ffmpeg -i $audioPathTemp -c:a aac -vn -y $newAudioFilePathTemp -hide_banner -loglevel $ffmpegLeve
+				if [[ -e $newAudioFilePathTemp ]]; then
+					rm $audioPathTemp
+					audioPathTemp=$newAudioFilePathTemp
+					audiosFilePath[randomAudioValue]=$audioPathTemp
+				fi
+			fi
+
 			# 记录到文件
 			$(writeFilesToPath $audioPathTemp $mergeAudiosFilePath)
 			
 			
 			audioDuration=$( getFileDuration $audioPathTemp )
 			audiosDuration=$(( $audiosDuration + $audioDuration ))
+			audioDurationStr="$(( $audioDuration / 60 )):$(( $audioDuration % 60 ))"
+			audiosDurationStr="$(( $audiosDuration / 3600 )):$(( $audiosDuration % 3600 / 60 )):$(( $audiosDuration % 60 ))"
 
 			audioName=$(basename "$audioPathTemp")
 			randomAudioIndex=`expr $randomAudioIndex + 1`
-			log "第${currentProgress}视频: 选取了第${randomAudioIndex}个音频:${audioName} 时长:${audioDuration}s 总时长:${audiosDuration}"
+			log "第${currentProgress}视频: 选取了第${randomAudioIndex}个音频:${audioName} 时长:${audioDurationStr}s 总时长:${audiosDurationStr}"
 		done
 		log "第${currentProgress}视频: 开始视频选取"
 		# 随机分配视频资源
@@ -196,11 +217,13 @@ function randomGenerate() {
 			
 			videoDuration=$(getFileDuration $videoPathTemp)
 			videosDuration=`expr $videoDuration + $videosDuration`
+			videoDurationStr="$(( $videoDuration / 60 )):$(( $videoDuration % 60 ))"
+			videosDurationStr="$(( $videosDuration / 3600 )):$(( $videosDuration % 3600 / 60 )):$(( $videosDuration % 60 ))"
 
 			videoName=$(basename "$videoPathTemp")
 			randomVideoIndex=`expr $randomVideoIndex + 1`
 
-			log "第${currentProgress}视频: 选取了第${randomVideoIndex}个视频:${videoName} 时长:${videoDuration}s 总时长:${videosDuration}"
+			log "第${currentProgress}视频: 选取了第${randomVideoIndex}个视频:${videoName} 时长:${videoDurationStr}s 总时长:${videosDurationStr}"
 		done
 
 		log "第 ${currentProgress} 视频：完成随机选取音视频"
@@ -239,6 +262,7 @@ function randomGenerate() {
 	open ${todayOutputDir}
 }
 
+setupLog
 randomGenerate $@
 
 
