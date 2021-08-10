@@ -8,6 +8,9 @@ source $rootDir/tools/tool.sh
 setupLog
 
 dir=$1
+
+python ./rename_files_name.py $dir
+
 shopt -s nullglob
 videoList=( $dir/*.{[mM][pP][4],[mM][o0][vV]} )
 shopt -u nullglob
@@ -34,14 +37,14 @@ for i in ${videoList[@]}; do
 	videoPath=$videosdir/$fileName.mp4
 	
 	# 导出 audio 以及MP4
-	if [[ ! -e $audioPath ]]; then
-		log "开始分离音频: 分离之后音频路径: ${audioPath}"
-		tAudioPath=$audiosDir/$fileName.temp.m4a
-		ffmpeg -i $i -acodec copy -vn -y $tAudioPath  -hide_banner -loglevel $ffmpegLeve
-		mv $tAudioPath $audioPath
-	else
-		log "开始分离音频: 音频已存在: ${videoPath}"
-	fi
+	# if [[ ! -e $audioPath ]]; then
+	# 	log "开始分离音频: 分离之后音频路径: ${audioPath}"
+	# 	tAudioPath=$audiosDir/$fileName.temp.m4a
+	# 	ffmpeg -i $i -acodec copy -vn -y $tAudioPath  -hide_banner -loglevel $ffmpegLeve
+	# 	mv $tAudioPath $audioPath
+	# else
+	# 	log "开始分离音频: 音频已存在: ${videoPath}"
+	# fi
 	
 	if [[ ! -e $videoPath ]]; then
 		log "开始分离视频: 分离之后视频路径: ${videoPath}"
@@ -55,6 +58,7 @@ for i in ${videoList[@]}; do
 	if [[ -e $videoPath ]]; then
 		log "视频存在，则开始裁剪视频"
 		($rootDir/clip_video.sh $videoPath)
+		rm $videoPath
 	else
 		warning "视频不存在，可能分离产生了问题"
 	fi

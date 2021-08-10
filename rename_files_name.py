@@ -6,9 +6,16 @@ import os
 
 def rename_filenames(path):
 	filenames = os.listdir(path)
+	replaceStrs = [" ", " ","..."]
 	for filename in filenames:
-		if " " in filename:
-			newfilename = filename.replace(' ', '-')
+		needChange = 0
+		newfilename = filename
+		for x in replaceStrs:
+			if x in filename:
+				newfilename = newfilename.replace(x, '-')
+				needChange = 1;
+		
+		if needChange == 1:
 			oldPath = os.path.join(path, filename)
 			newPath = os.path.join(path, newfilename)
 			print("{} -> {}".format(filename, newfilename))

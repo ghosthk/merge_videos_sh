@@ -9,6 +9,8 @@ function generate_video() {
 	currentIndex=$1
 	allCount=$2
 	path=$3
+	outputDir=$4
+	
 	currentProgress="${currentIndex}/${allCount}"
 	# 获取目录最后一级名字
 	lastDirName=${path##*/}
@@ -36,7 +38,7 @@ function generate_video() {
 	mergedAudiosFilePath=$todayOutputTempDir/$outputFilePrefix-$currentIndex.m4a
 	mergedVideosFilePath=$todayOutputTempDir/$outputFilePrefix-$currentIndex.mp4
 	outputVideoFilePathTemp=$todayOutputTempDir/$outputFilePrefix-$currentIndex-temp.mp4
-	outputVideoFilePath=$todayOutputDir/$outputFilePrefix-$currentIndex.mp4
+	outputVideoFilePath=$outputDir/$outputFilePrefix-$currentIndex.mp4
 
 	log "第 ${currentProgress} 视频，准备制作..."
 
@@ -147,15 +149,20 @@ function generate_video() {
 makeOutputDir
 setupLog
 
+musicOutputDir=$todayOutputDir/"music"
+if [[ ! -d $musicOutputDir ]]; then
+	mkdir $musicOutputDir
+fi
+
 log "一共要生成 ${argsCount} 个视频"
 
 index=1
 for arg in $@; do
-	generate_video $index $argsCount $arg
+	generate_video $index $argsCount $arg $musicOutputDir
 	index=`expr $index + 1`
 done
 
 log "生成完了所有视频，可能存在部分视频失败或有问题，麻烦一个个视频简单查验下^_^"
-log "导出视频的目录: ${todayOutputDir}"
-log "如果生成的视频已经使用，可以删除当前文件夹^_^ ${todayOutputDir}"
-open ${todayOutputDir}
+log "导出视频的目录: ${musicOutputDir}"
+log "如果生成的视频已经使用，可以删除当前文件夹^_^ ${musicOutputDir}"
+open ${musicOutputDir}

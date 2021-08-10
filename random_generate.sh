@@ -21,6 +21,7 @@ function randomGenerate() {
 
 	audioDirName=${audioPath##*/}
 	outputFilePrefix=$audioDirName-$(date "+%H%M%S")
+	randomOutputDir=$todayOutputDir/$audioDirName
 
 	log "将要随机生成 ${generateCount} 个视频"
 	log "将在音频文件夹 ${audioPath} 中随机音频"
@@ -52,6 +53,9 @@ function randomGenerate() {
 	fi
 
 	makeOutputDir
+	if [[ ! -d $randomOutputDir ]]; then
+		mkdir $randomOutputDir
+	fi
 
 	function IsContains(){
 	    # 把原来的arr新赋值给一个新数组
@@ -122,7 +126,7 @@ function randomGenerate() {
 		mergedAudiosFilePath=$todayOutputTempDir/$outputFilePrefix-$currentIndex.m4a
 		mergedVideosFilePath=$todayOutputTempDir/$outputFilePrefix-$currentIndex.mp4
 		outputVideoFilePathTemp=$todayOutputTempDir/$outputFilePrefix-$currentIndex-temp.mp4
-		outputVideoFilePath=$todayOutputDir/$outputFilePrefix-$currentIndex.mp4
+		outputVideoFilePath=$randomOutputDir/$outputFilePrefix-$currentIndex.mp4
 
 		# 记录所有音视频索引防止重复
 		usedAudioFileIndexs=()
@@ -257,9 +261,9 @@ function randomGenerate() {
 	done
 
 	log "随机生成完了所有视频，可能存在部分视频失败或有问题，麻烦一个个视频简单查验下^_^"
-	log "导出视频的目录: ${todayOutputDir}"
-	log "如果生成的视频已经使用，可以删除当前文件夹^_^ ${todayOutputDir}"
-	open ${todayOutputDir}
+	log "导出视频的目录: ${randomOutputDir}"
+	log "如果生成的视频已经使用，可以删除当前文件夹^_^ ${randomOutputDir}"
+	open ${randomOutputDir}
 }
 
 setupLog
