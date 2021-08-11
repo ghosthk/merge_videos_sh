@@ -17,7 +17,8 @@ videoWidth=1280
 videoHeight=720
 
 # 随机生成视频时长
-randomGenerateDuration=3660
+randomGenerateDuration=3900
+randomGenerateMinDuration=3600
 # 每次裁剪的时长 60s
 everyClipDuration=60 
 

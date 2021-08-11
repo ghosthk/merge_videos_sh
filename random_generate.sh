@@ -16,16 +16,15 @@ function randomGenerate() {
 	if [[ $argsCount > 2 ]]; then
 		videoPath=$3
 	fi
-
-	python ./rename_files_name.py $audioPath $videoPath
-
 	audioDirName=${audioPath##*/}
 	outputFilePrefix=$audioDirName-$(date "+%H%M%S")
 	randomOutputDir=$todayOutputDir/$audioDirName
 
-	log "将要随机生成 ${generateCount} 个视频"
+	log "将要随机生成 ${generateCount} 个 ${audioDirName} 视频"
 	log "将在音频文件夹 ${audioPath} 中随机音频"
 	log "将在视频文件夹 ${videoPath} 中随机视频"
+
+	python ./rename_files_name.py $audioPath $videoPath
 
 	if [[ ! -d $audioPath ]]; then
 		error "音频文件夹不存在，请检查输入是否正确."
@@ -235,14 +234,27 @@ function randomGenerate() {
 		log "第 ${currentProgress} 视频：开始合成音频, 可能会比较耗时，请耐心等待..."
 		mergeAVFiles $mergeAudiosFilePath $mergedAudiosFilePath
 
-		log "第 ${currentProgress} 视频：开始合成视频, 可能会比较耗时，请耐心等待..."
-		mergeAVFiles $mergeVideosFilePath $mergedVideosFilePath
+		audioDuration=0
+		isError=0
+		errorCode=0
+		if [[ -e $mergedAudiosFilePath ]]; then
+			audioDuration=$( getFileDuration $mergedAudiosFilePath )
+			if [[ $audioDuration -lt $randomGenerateMinDuration ]]; then
+				isError=1
+				errorCode=100
+			fi
+		fi
 
-		log "第 ${currentProgress} 视频：开始合并音视频, 可能会比较耗时，请耐心等待..."
-		($rootDir/tools/merge_audio_video.sh $mergedAudiosFilePath $mergedVideosFilePath $outputVideoFilePathTemp)
+		if [[ $isError = 0 ]]; then
+			log "第 ${currentProgress} 视频：开始合成视频, 可能会比较耗时，请耐心等待..."
+			mergeAVFiles $mergeVideosFilePath $mergedVideosFilePath
 
-		mv $outputVideoFilePathTemp $outputVideoFilePath
+			log "第 ${currentProgress} 视频：开始合并音视频, 可能会比较耗时，请耐心等待..."
+			($rootDir/tools/merge_audio_video.sh $mergedAudiosFilePath $mergedVideosFilePath $outputVideoFilePathTemp)
 
+			mv $outputVideoFilePathTemp $outputVideoFilePath
+		fi
+		
 		log "第 ${currentProgress} 视频：移除产生的临时文件"
 		rm $mergeVideosFilePath
 		rm $mergeAudiosFilePath
@@ -250,14 +262,30 @@ function randomGenerate() {
 		rm $mergedVideosFilePath
 
 		log "****************************************"
-		if [[ -e $outputVideoFilePath ]]; then
-			log "第 ${currentProgress} 视频：合并音视频成功. 请查看 ${outputVideoFilePath}"
-		else
-			log "第 ${currentProgress} 视频：合并音视频失败..."
+		isReMerge=0
+		if [[ $isError = 1 ]]; then
+			if [[ $errorCode = 100 ]]; then
+				audioDurationStr="$(( $audioDuration / 3600 )):$(( $audioDuration % 3600 / 60 )):$(( $audioDuration % 60 ))"
+				log "第 ${currentProgress} 视频：合并音视频失败...会再次合成视频...原因是时间未满足:总时长:${audioDurationStr}"
+				isReMerge=1
+			else
+				log "第 ${currentProgress} 视频：合并音视频失败...会再次合成视频....原因未知...."
+				isReMerge=1
+			fi	
+		else 
+			if [[ -e $outputVideoFilePath ]]; then
+				log "第 ${currentProgress} 视频：合并音视频成功. 请查看 ${outputVideoFilePath}"
+			else
+				log "第 ${currentProgress} 视频：合并音视频失败...原因未知...."
+			fi
 		fi
 		log "****************************************"
 		log ""
 		log ""
+
+		if [[ $isReMerge = 1 ]]; then
+			i=$(( $i - 1 ))	
+		fi
 	done
 
 	log "随机生成完了所有视频，可能存在部分视频失败或有问题，麻烦一个个视频简单查验下^_^"
